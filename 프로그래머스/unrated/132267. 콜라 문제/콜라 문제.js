@@ -14,7 +14,6 @@ function solution(a, b, n) {
         x = (y-b) * (a/b);
         y -= b;
         
-        
         n = n - x + y;
         answer += y;
         
