@@ -5,9 +5,7 @@ function solution(routes) {
     let x = arr[0][1];
     
     for(let i=1; i<arr.length; i++) {
-        if (arr[i][0] <= x) {
-            continue;
-        } else {
+        if (arr[i][0] > x) {
             x = arr[i][1];
             answer++;
         }
