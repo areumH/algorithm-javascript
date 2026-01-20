@@ -1,50 +1,59 @@
 name: Move LeetCode Solutions
 
 on:
-  workflow_dispatch:
   push:
     paths:
       - '[0-9][0-9][0-9][0-9]-*/**'
+  workflow_dispatch:
 
 jobs:
-  move-files:
+  move-leetcode:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
-      - name: Move LeetCode solutions
+      - name: Move LeetCode directories
         run: |
-          echo "Current directory contents:"
+          set -e
+
+          echo "Current directory:"
+          pwd
           ls -la
-          
+
           mkdir -p leetcode
-          
-          echo "Changed files in this push:"
-          git diff --name-only HEAD^ HEAD
-          
-          found=0
+
+          moved=0
           for d in [0-9][0-9][0-9][0-9]-*; do
             if [ -d "$d" ]; then
-              echo "Moving directory: $d"
-              mv "$d" "leetcode/" && found=1
+              echo "Moving $d -> leetcode/$d"
+              mv "$d" "leetcode/"
+              moved=1
             fi
           done
-          
-          if [ $found -eq 0 ]; then
-            echo "No matching directories found to move"
+
+          if [ "$moved" -eq 0 ]; then
+            echo "No LeetCode directories to move"
           fi
 
-      - name: Commit & Push changes
+      - name: Commit and push changes
         run: |
           if git status --porcelain | grep .; then
-            git config --global user.name 'github-actions[bot]'
-            git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            git pull --rebase origin main
+
             git add -A
-            git commit -m "chore: Move LeetCode solutions to LeetCode folder"
-            git push
+            git commit -m "chore: move leetcode solutions into leetcode folder"
+            git push origin main
           else
             echo "No changes to commit"
           fi
+
