@@ -20,7 +20,7 @@ jobs:
           echo "Current directory contents:"
           ls -la
           
-          mkdir -p LeetCode
+          mkdir -p leetcode
           
           echo "Changed files in this push:"
           git diff --name-only HEAD^ HEAD
