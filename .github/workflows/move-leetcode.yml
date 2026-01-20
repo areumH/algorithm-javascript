@@ -9,51 +9,38 @@ on:
 jobs:
   move-leetcode:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      - name: Setup git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Sync with remote
+        run: |
+          git pull --rebase origin main
+
       - name: Move LeetCode directories
         run: |
-          set -e
-
-          echo "Current directory:"
-          pwd
-          ls -la
-
           mkdir -p leetcode
 
-          moved=0
           for d in [0-9][0-9][0-9][0-9]-*; do
             if [ -d "$d" ]; then
-              echo "Moving $d -> leetcode/$d"
-              mv "$d" "leetcode/"
-              moved=1
+              mv "$d" leetcode/
             fi
           done
 
-          if [ "$moved" -eq 0 ]; then
-            echo "No LeetCode directories to move"
-          fi
-
-      - name: Commit and push changes
+      - name: Commit and push
         run: |
           if git status --porcelain | grep .; then
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-
-            git pull --rebase origin main
-
             git add -A
             git commit -m "chore: move leetcode solutions into leetcode folder"
             git push origin main
-          else
-            echo "No changes to commit"
           fi
 
